@@ -1,0 +1,31 @@
+version: '3.8'
+services:
+  db:
+    image: supabase/postgres:15.8.1.049
+    container_name: supabase-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_PASSWORD: your_postgres_password
+      POSTGRES_DB: your_database_name
+    ports:
+      - "5432:5432"
+    volumes:
+      - db-data:/var/lib/postgresql/data
+
+  mcp:
+    image: node:18
+    container_name: mcp-supabase
+    working_dir: /app
+    # This command runs the MCP server using npx.
+    # Replace the connection string values with your own credentials.
+    command: >
+      sh -c "npx -y @modelcontextprotocol/server-postgres 'postgres://postgres:your_postgres_password@db:5432/your_database_name'"
+    depends_on:
+      - db
+    ports:
+      - "3000:3000"
+    environment:
+      NODE_ENV: production
+
+volumes:
+  db-data:
